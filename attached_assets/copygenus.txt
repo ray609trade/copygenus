@@ -1,0 +1,750 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { FileText, ArrowLeft, Globe, Copy, Download, Loader2, Check, AlertCircle } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
+import { Checkbox } from "@/components/ui/checkbox"
+
+export default function WebsiteImportPage() {
+  const [domain, setDomain] = useState("")
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisComplete, setAnalysisComplete] = useState(false)
+  const [analysisProgress, setAnalysisProgress] = useState(0)
+  const [extractedContent, setExtractedContent] = useState<null | {
+    title: string
+    description: string
+    keywords: string[]
+    services: string[]
+    usps: string[]
+  }>(null)
+  const [generatedAds, setGeneratedAds] = useState<null | {
+    google: any[]
+    facebook: any[]
+    instagram: any[]
+  }>(null)
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!domain) return
+
+    setIsAnalyzing(true)
+    setAnalysisProgress(0)
+    setAnalysisComplete(false)
+    setExtractedContent(null)
+    setGeneratedAds(null)
+
+    // Simulate progress
+    const interval = setInterval(() => {
+      setAnalysisProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          return 100
+        }
+        return prev + 5
+      })
+    }, 200)
+
+    // Simulate completion after 4 seconds
+    setTimeout(() => {
+      clearInterval(interval)
+      setAnalysisProgress(100)
+      setIsAnalyzing(false)
+      setAnalysisComplete(true)
+
+      // Mock extracted content
+      setExtractedContent({
+        title: domain.includes("credit") ? "Professional Credit Repair Services" : "Example Business Name",
+        description: domain.includes("credit")
+          ? "We help clients improve their credit scores through legal and effective methods. Our team of experts provides personalized credit repair solutions."
+          : "We provide high-quality services to meet your needs. Our team of professionals is dedicated to customer satisfaction.",
+        keywords: domain.includes("credit")
+          ? [
+              "credit repair",
+              "credit score improvement",
+              "financial services",
+              "credit consultation",
+              "credit report analysis",
+            ]
+          : ["service", "quality", "professional", "solutions", "customer satisfaction"],
+        services: domain.includes("credit")
+          ? ["Credit Report Analysis", "Dispute Resolution", "Credit Score Monitoring", "Financial Education"]
+          : ["Service 1", "Service 2", "Service 3", "Consulting"],
+        usps: domain.includes("credit")
+          ? ["Certified Credit Experts", "Transparent Process", "Personalized Approach", "Compliant Methods"]
+          : ["Quality Guarantee", "24/7 Support", "Fast Turnaround", "Experienced Team"],
+      })
+
+      // Mock generated ads
+      setGeneratedAds({
+        google: [1, 2, 3],
+        facebook: [1, 2],
+        instagram: [1, 2],
+      })
+    }, 4000)
+  }
+
+  const resetForm = () => {
+    setDomain("")
+    setAnalysisComplete(false)
+    setExtractedContent(null)
+    setGeneratedAds(null)
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="border-b bg-white">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Link href="/">
+              <div className="flex items-center gap-2">
+                <FileText className="h-6 w-6 text-purple-600" />
+                <span className="font-bold text-xl">CopyGenius</span>
+              </div>
+            </Link>
+          </div>
+          <nav className="flex items-center gap-4">
+            <Link href="/dashboard">
+              <Button variant="ghost" size="sm">
+                Dashboard
+              </Button>
+            </Link>
+            <Link href="/blog">
+              <Button variant="ghost" size="sm">
+                Blog
+              </Button>
+            </Link>
+            <Link href="/create">
+              <Button variant="outline" size="sm">
+                Manual Creation
+              </Button>
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          {!analysisComplete ? (
+            <>
+              <div className="mb-8">
+                <h1 className="text-3xl font-bold mb-2">Website Content Import</h1>
+                <p className="text-gray-600">
+                  Enter your website domain and we'll automatically extract content to create targeted ad copy for your
+                  business.
+                </p>
+              </div>
+
+              <Card>
+                <CardContent className="pt-6">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="domain">Website Domain</Label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-grow">
+                          <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-4 w-4" />
+                          <Input
+                            id="domain"
+                            placeholder="example.com"
+                            value={domain}
+                            onChange={(e) => setDomain(e.target.value)}
+                            className="pl-10"
+                            disabled={isAnalyzing}
+                          />
+                        </div>
+                        <Button type="submit" disabled={isAnalyzing || !domain}>
+                          {isAnalyzing ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Analyzing...
+                            </>
+                          ) : (
+                            "Import & Generate"
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {isAnalyzing && (
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>Analyzing website content...</span>
+                            <span>{analysisProgress}%</span>
+                          </div>
+                          <Progress value={analysisProgress} />
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center">
+                            {analysisProgress >= 20 ? (
+                              <Check className="h-4 w-4 text-green-500 mr-2" />
+                            ) : (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            )}
+                            <span>Crawling website pages</span>
+                          </div>
+                          <div className="flex items-center">
+                            {analysisProgress >= 40 ? (
+                              <Check className="h-4 w-4 text-green-500 mr-2" />
+                            ) : analysisProgress >= 20 ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <div className="h-4 w-4 mr-2" />
+                            )}
+                            <span>Extracting key content</span>
+                          </div>
+                          <div className="flex items-center">
+                            {analysisProgress >= 60 ? (
+                              <Check className="h-4 w-4 text-green-500 mr-2" />
+                            ) : analysisProgress >= 40 ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <div className="h-4 w-4 mr-2" />
+                            )}
+                            <span>Identifying key selling points</span>
+                          </div>
+                          <div className="flex items-center">
+                            {analysisProgress >= 80 ? (
+                              <Check className="h-4 w-4 text-green-500 mr-2" />
+                            ) : analysisProgress >= 60 ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <div className="h-4 w-4 mr-2" />
+                            )}
+                            <span>Generating ad variations</span>
+                          </div>
+                          <div className="flex items-center">
+                            {analysisProgress >= 100 ? (
+                              <Check className="h-4 w-4 text-green-500 mr-2" />
+                            ) : analysisProgress >= 80 ? (
+                              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            ) : (
+                              <div className="h-4 w-4 mr-2" />
+                            )}
+                            <span>Finalizing ad copy</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="bg-purple-50 border border-purple-100 rounded-md p-4">
+                      <h3 className="font-medium flex items-center text-purple-800">
+                        <AlertCircle className="h-4 w-4 mr-2 text-purple-600" />
+                        How it works
+                      </h3>
+                      <ul className="mt-2 space-y-1 text-sm text-purple-700">
+                        <li>• We scan your website to extract key information</li>
+                        <li>• Our AI identifies your services, unique selling points, and target audience</li>
+                        <li>• We generate platform-specific ad copy based on your website content</li>
+                        <li>
+                          • For credit repair services, all ads are generated following Google's advertising policies
+                        </li>
+                      </ul>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center mb-8">
+                <Button variant="outline" size="sm" className="mr-4" onClick={resetForm}>
+                  <ArrowLeft className="h-4 w-4 mr-2" /> Try Another Website
+                </Button>
+                <h1 className="text-3xl font-bold">Generated Ads for {domain}</h1>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6 mb-8">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Extracted Content</CardTitle>
+                    <CardDescription>Key information from your website</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Business Name/Title</h3>
+                      <p className="text-sm">{extractedContent?.title}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Description</h3>
+                      <p className="text-sm">{extractedContent?.description}</p>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Keywords</h3>
+                      <div className="flex flex-wrap gap-1">
+                        {extractedContent?.keywords.map((keyword, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {keyword}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Services</h3>
+                      <ul className="text-sm space-y-1">
+                        {extractedContent?.services.map((service, i) => (
+                          <li key={i}>• {service}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-medium text-gray-500 mb-1">Unique Selling Points</h3>
+                      <ul className="text-sm space-y-1">
+                        {extractedContent?.usps.map((usp, i) => (
+                          <li key={i}>• {usp}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="md:col-span-2">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg">Content Accuracy</CardTitle>
+                    <CardDescription>Review and adjust the extracted content</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 mb-4">
+                      We've extracted this content from your website. Please review and make any necessary adjustments
+                      to improve your ad copy.
+                    </p>
+                    <div className="space-y-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox id="content-accurate" defaultChecked />
+                        <label
+                          htmlFor="content-accurate"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          The extracted content accurately represents my business
+                        </label>
+                      </div>
+                      <Button className="w-full">Edit Extracted Content</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {domain.includes("credit") && (
+                <div className="mb-6 bg-purple-50 border border-purple-100 rounded-lg p-4">
+                  <h3 className="font-semibold mb-2 flex items-center">
+                    <Check className="h-5 w-5 text-green-600 mr-2" />
+                    Policy Compliance for Credit Repair Ads
+                  </h3>
+                  <p className="text-sm text-gray-700">
+                    We've detected that your website is related to credit repair services. All generated ad copy follows
+                    Google's advertising policies for credit repair services, ensuring your ads will be compliant while
+                    effectively promoting your business.
+                  </p>
+                </div>
+              )}
+
+              <div className="mb-6 bg-blue-50 border border-blue-100 rounded-lg p-4">
+                <h3 className="font-semibold mb-2 flex items-center">
+                  <FileText className="h-5 w-5 text-blue-600 mr-2" />
+                  Performance Tracking
+                </h3>
+                <p className="text-sm text-gray-700 mb-3">
+                  All generated ads include tracking capabilities. Use the provided tracking URLs when setting up your
+                  campaigns to monitor performance in your advertiser dashboard.
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                    How to Use Tracking Links
+                  </Button>
+                  <Link href="/advertiser-dashboard">
+                    <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                      View Dashboard
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+
+              <Tabs defaultValue="google" className="w-full mb-8">
+                <TabsList className="mb-6">
+                  <TabsTrigger value="google">Google Ads ({generatedAds?.google.length})</TabsTrigger>
+                  <TabsTrigger value="facebook">Facebook Ads ({generatedAds?.facebook.length})</TabsTrigger>
+                  <TabsTrigger value="instagram">Instagram Ads ({generatedAds?.instagram.length})</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="google">
+                  <div className="space-y-4">
+                    {domain.includes("credit") ? (
+                      <>
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium text-blue-600">
+                                {extractedContent?.title} | Professional Analysis
+                              </h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-1">
+                              Expert credit report review & personalized improvement plan. Our certified specialists
+                              help identify issues affecting your score.
+                            </p>
+                            <p className="text-sm text-green-700">
+                              Free Consultation | Transparent Process | Educational Resources
+                            </p>
+                            <div className="mt-2">
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                <Check className="h-3 w-3 mr-1" /> Policy Compliant
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium text-blue-600">
+                                Credit Report Analysis | {extractedContent?.title}
+                              </h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-1">
+                              Understanding your credit report is the first step to improvement. Our team provides
+                              detailed analysis and personalized guidance.
+                            </p>
+                            <p className="text-sm text-green-700">
+                              Schedule Today | Certified Experts | Client Education
+                            </p>
+                            <div className="mt-2">
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                <Check className="h-3 w-3 mr-1" /> Policy Compliant
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium text-blue-600">
+                                Credit Education Resources | {extractedContent?.title}
+                              </h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-1">
+                              Learn how credit works and steps to improve your financial health. Access our library of
+                              resources and expert guidance.
+                            </p>
+                            <p className="text-sm text-green-700">
+                              Free Resources | Expert Support | Personalized Plans
+                            </p>
+                            <div className="mt-2">
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                <Check className="h-3 w-3 mr-1" /> Policy Compliant
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </>
+                    ) : (
+                      <>
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium text-blue-600">
+                                {extractedContent?.title} | Official Website
+                              </h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-1">
+                              {extractedContent?.description?.substring(0, 80)}...
+                            </p>
+                            <p className="text-sm text-green-700">
+                              {extractedContent?.usps[0]} | {extractedContent?.usps[1]} | {extractedContent?.usps[2]}
+                            </p>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium text-blue-600">
+                                {extractedContent?.services[0]} | {extractedContent?.title}
+                              </h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-1">
+                              Professional {extractedContent?.services[0]} services tailored to your needs. Trusted by
+                              customers for quality and reliability.
+                            </p>
+                            <p className="text-sm text-green-700">
+                              Free Quote | {extractedContent?.usps[0]} | {extractedContent?.usps[3]}
+                            </p>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium text-blue-600">
+                                Top-Rated {extractedContent?.services[1]} | {extractedContent?.title}
+                              </h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-1">
+                              Looking for quality {extractedContent?.services[1]}? Our team delivers exceptional results
+                              with a focus on customer satisfaction.
+                            </p>
+                            <p className="text-sm text-green-700">
+                              Book Now | {extractedContent?.usps[2]} | {extractedContent?.usps[1]}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="facebook">
+                  <div className="space-y-4">
+                    {domain.includes("credit") ? (
+                      <>
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium">Understanding Your Credit Report</h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-3">
+                              Confused by your credit report? Our certified experts can help you understand what's
+                              affecting your score and provide personalized guidance on improvement steps.
+                            </p>
+                            <p className="text-sm font-medium text-blue-600">
+                              Learn More → Schedule Consultation → Free Resources →
+                            </p>
+                            <div className="mt-2">
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                <Check className="h-3 w-3 mr-1" /> Policy Compliant
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium">Take Control of Your Financial Future</h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-3">
+                              Knowledge is power when it comes to your credit. Our team provides the education, tools,
+                              and support you need to make informed decisions about your financial health.
+                            </p>
+                            <p className="text-sm font-medium text-blue-600">
+                              Free Credit Resources → Expert Analysis → Schedule Call →
+                            </p>
+                            <div className="mt-2">
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                <Check className="h-3 w-3 mr-1" /> Policy Compliant
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </>
+                    ) : (
+                      <>
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium">Quality {extractedContent?.services[0]} You Can Trust</h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-3">
+                              {extractedContent?.description} Our {extractedContent?.usps[0]} ensures you'll receive the
+                              best service possible.
+                            </p>
+                            <p className="text-sm font-medium text-blue-600">Learn More → Get a Quote → Contact Us →</p>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium">Why Customers Choose {extractedContent?.title}</h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800 mb-3">
+                              With our {extractedContent?.usps[1]} and {extractedContent?.usps[3]}, we deliver
+                              exceptional results for every client. See why we're the top choice for{" "}
+                              {extractedContent?.services[1]}.
+                            </p>
+                            <p className="text-sm font-medium text-blue-600">
+                              See Testimonials → Book Now → Special Offer →
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="instagram">
+                  <div className="space-y-4">
+                    {domain.includes("credit") ? (
+                      <>
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium">Instagram Ad</h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800">
+                              📊 Understanding your credit report shouldn't be complicated
+                              <br />
+                              <br />
+                              Our certified experts provide:
+                              <br />✅ Detailed credit report analysis
+                              <br />✅ Personalized improvement strategies
+                              <br />✅ Educational resources
+                              <br />✅ Ongoing support
+                              <br />
+                              <br />
+                              Take the first step toward financial wellness today!
+                              <br />👉 Link in bio for a free consultation
+                            </p>
+                            <div className="mt-2">
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                <Check className="h-3 w-3 mr-1" /> Policy Compliant
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium">Instagram Ad</h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800">
+                              💡 Knowledge is the first step to financial empowerment
+                              <br />
+                              <br />
+                              Our team of certified specialists helps you:
+                              <br />• Understand factors affecting your credit
+                              <br />• Create a personalized improvement plan
+                              <br />• Learn strategies for long-term financial health
+                              <br />• Access educational resources
+                              <br />
+                              <br />
+                              Start your journey with a free credit consultation today!
+                              <br />👉 Tap the link to schedule
+                            </p>
+                            <div className="mt-2">
+                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                <Check className="h-3 w-3 mr-1" /> Policy Compliant
+                              </Badge>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </>
+                    ) : (
+                      <>
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium">Instagram Ad</h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800">
+                              ✨ Quality {extractedContent?.services[0]} that exceeds expectations ✨
+                              <br />
+                              <br />
+                              {extractedContent?.description?.substring(0, 100)}...
+                              <br />
+                              <br />
+                              What sets us apart:
+                              <br />✅ {extractedContent?.usps[0]}
+                              <br />✅ {extractedContent?.usps[1]}
+                              <br />✅ {extractedContent?.usps[2]}
+                              <br />
+                              <br />🔥 Special offer for new clients!
+                              <br />👉 Tap the link in bio to learn more
+                            </p>
+                          </CardContent>
+                        </Card>
+
+                        <Card>
+                          <CardContent className="pt-6">
+                            <div className="flex justify-between mb-2">
+                              <h3 className="font-medium">Instagram Ad</h3>
+                              <Button variant="ghost" size="sm" className="h-6 px-2">
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <p className="text-sm text-gray-800">
+                              💼 Professional {extractedContent?.services[1]} for your business 💼
+                              <br />
+                              <br />
+                              Looking for reliable {extractedContent?.services[1]}? Our team delivers exceptional
+                              results every time.
+                              <br />
+                              <br />
+                              Why clients choose us:
+                              <br />• {extractedContent?.usps[0]}
+                              <br />• {extractedContent?.usps[3]}
+                              <br />• {extractedContent?.usps[2]}
+                              <br />
+                              <br />📱 DM us today for a free consultation
+                              <br />🔗 Link in bio for more information
+                            </p>
+                          </CardContent>
+                        </Card>
+                      </>
+                    )}
+                  </div>
+                </TabsContent>
+              </Tabs>
+
+              <div className="flex justify-between">
+                <Button variant="outline" onClick={resetForm}>
+                  Try Another Website
+                </Button>
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  <Download className="mr-2 h-4 w-4" /> Export All Ad Variations
+                </Button>
+              </div>
+            </>
+          )}
+        </div>
+      </main>
+    </div>
+  )
+}
